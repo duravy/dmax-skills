@@ -17,6 +17,7 @@ When this skill is invoked:
 1. **If arguments were provided** ($ARGUMENTS):
    - If a file path or ticket reference was provided, skip the default message
    - Immediately read any provided files FULLY
+   - **Run the input gate below before any research.**
    - Begin the research process
 
 2. **If no arguments provided**, respond with:
@@ -35,6 +36,47 @@ For deeper analysis, try: `/create-plan think deeply about specs/shared/tickets/
 ```
 
 Then wait for the user's input.
+
+## Input gate
+
+A plan is only as sound as the design it was built from. **Never silently accept an unvalidated
+input.** Either stop, or proceed with a mark on the output — but never quietly.
+
+Skip this gate entirely if the input is a ticket, a free-text description, or there is no input file.
+
+**1. The input IS an Impact Analysis (`specs/shared/analysis/<slug>/impact-analysis.md`).**
+
+Check its header `status`. If it is not `ready` — or a `⛔ STOP` block is present — **halt**:
+
+```
+⛔ This Impact Analysis is not ready.
+   Open: D-03, D-07 (unratified) · F-02 (blocking) · C-05 (not covered)
+   Run: /impact-analysis ratify <slug>
+   To plan anyway: /create-plan <path> --force-unratified
+```
+
+With `--force-unratified`, proceed — and stamp the plan's header:
+`⚠ PLANNED FROM UNRATIFIED IMPACT ANALYSIS — D-03, D-07, F-02, C-05 unresolved`
+
+Also honour the analysis's own staleness fields: if `grounded-at` is far behind `HEAD` and cited files
+have moved, say so before planning.
+
+**2. The input is a design/feature doc with NO Impact Analysis.**
+
+If the input reads as a design or feature spec and `specs/shared/analysis/<slug>/` does not exist,
+**warn and continue**:
+
+```
+⚠ Design doc with no Impact Analysis at specs/shared/analysis/<slug>/.
+  Design docs that were never reconciled against the code are the usual source of
+  missing or buggy features — conflicting details, and unmade decisions (new service
+  vs. extend an existing one; new table vs. new columns) that this plan will end up
+  making implicitly.
+  Recommended: /impact-analysis <path>
+  Continuing in 'unvalidated' mode.
+```
+
+Stamp the plan's header: `source: unvalidated design doc`.
 
 ## Process Steps
 
