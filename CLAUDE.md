@@ -24,6 +24,7 @@ The rules that matter most:
 | `grill-me` | user | Alias that invokes `/grilling` |
 | `handoff` | user | Compact the current conversation into a handoff doc for a fresh agent |
 | `feature-authoring` | user | Author a consistent, multi-session feature spec from raw ideas/docs in a brownfield workspace |
+| `impact-analysis` | user | Reconcile feature/HLD specs against real code; force the skipped design decisions; emit the grounded artifact `create-plan` consumes instead of the HLD |
 
 ## Skill pipeline
 
