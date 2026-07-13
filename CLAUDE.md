@@ -23,6 +23,7 @@ The rules that matter most:
 | `grilling` | model | Relentlessly stress-test a plan or design |
 | `grill-me` | user | Alias that invokes `/grilling` |
 | `handoff` | user | Compact the current conversation into a handoff doc for a fresh agent |
+| `high-agency` | user | Coach a problem up the low-to-high agency spectrum — a tracked case, or `quick` for a one-shot verdict + moves |
 | `feature-authoring` | user | Author a consistent, multi-session feature spec from raw ideas/docs in a brownfield workspace |
 | `impact-analysis` | user | Reconcile feature/HLD specs against real code; force the skipped design decisions; emit the grounded artifact `create-plan` consumes instead of the HLD |
 
