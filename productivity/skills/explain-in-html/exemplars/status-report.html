@@ -1,0 +1,349 @@
+<!-- exemplar · status-report · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform status — Sprint 24</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --panel: 12px;
+    --edge: 1.5px solid var(--gray-300);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; }
+
+  /* header -------------------------------------------------- */
+  .masthead { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: 38px; letter-spacing: -0.01em; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    background: var(--gray-150);
+    border: var(--edge);
+    border-radius: 999px;
+    padding: 5px 11px;
+    white-space: nowrap;
+  }
+  .scope { color: var(--gray-500); font-size: 14px; margin: 6px 0 40px; }
+  .scope .src { font-family: var(--mono); font-size: 13px; color: var(--gray-700); }
+
+  section { margin-bottom: 50px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 24px; letter-spacing: -0.01em; }
+  .divider { border: none; border-top: 1px solid var(--gray-300); margin: 6px 0 22px; }
+
+  /* stat band ----------------------------------------------- */
+  .band { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 700px) { .band { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: #FFFFFF; border: var(--edge); border-radius: var(--panel); padding: 20px 22px 18px; }
+  .stat.flag { border-left: 4px solid var(--clay); padding-left: 19px; }
+  .stat-n { font-family: var(--serif); font-size: 44px; font-weight: 500; line-height: 1; margin-bottom: 8px; }
+  .stat-k { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-500); }
+  .stat-d { font-family: var(--mono); font-size: 11px; margin-top: 6px; color: var(--gray-500); }
+  .stat-d.up { color: var(--olive); }
+  .stat-d.down { color: var(--rust); }
+
+  /* highlights ---------------------------------------------- */
+  .points { list-style: none; }
+  .points li { position: relative; padding: 0 0 14px 26px; color: var(--gray-700); }
+  .points li::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--clay);
+  }
+  .points strong { color: var(--slate); font-weight: 600; }
+
+  /* shipped ------------------------------------------------- */
+  .scroll { overflow-x: auto; }
+  table.ships {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #FFFFFF;
+    border: var(--edge);
+    border-radius: var(--panel);
+    overflow: hidden;
+  }
+  table.ships th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    background: var(--gray-150);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-300);
+  }
+  table.ships td { padding: 13px 16px; border-bottom: 1px solid var(--gray-150); font-size: 14px; }
+  table.ships tr:last-child td { border-bottom: none; }
+  table.ships tbody tr:hover { background: var(--ivory); }
+  .ref { font-family: var(--mono); font-size: 13px; color: var(--clay); text-decoration: none; }
+  .ref:hover { border-bottom: 1px dotted var(--clay); }
+  .who { color: var(--gray-700); font-size: 13px; }
+  .risk { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gray-500); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.low { background: var(--olive); }
+  .dot.med { background: var(--clay); }
+  .dot.high { background: var(--rust); }
+
+  /* chart --------------------------------------------------- */
+  .chart { background: #FFFFFF; border: var(--edge); border-radius: var(--panel); padding: 24px 28px 18px; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .chart-note { font-size: 12px; color: var(--gray-500); margin-top: 12px; }
+
+  /* carryover ----------------------------------------------- */
+  .carry { background: var(--oat); border-radius: var(--panel); padding: 20px 22px; }
+  .carry-row { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; }
+  .carry-row + .carry-row { border-top: 1px solid rgba(20, 20, 19, 0.08); }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-700);
+    background: var(--ivory);
+    border-radius: 4px;
+    padding: 3px 7px;
+    flex-shrink: 0;
+  }
+  .carry-txt { font-size: 14px; color: var(--gray-700); }
+  .carry-txt .owner { color: var(--gray-500); font-size: 12px; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="masthead">
+      <h1>Platform &mdash; Sprint 24</h1>
+      <span class="tag">auto-generated</span>
+    </div>
+    <div class="scope">
+      Feb 3 &ndash; Feb 9, 2026 &nbsp;&middot;&nbsp;
+      <span class="src">atlas/platform @ main</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="band">
+      <div class="stat">
+        <div class="stat-n">23</div>
+        <div class="stat-k">PRs merged</div>
+        <div class="stat-d up">+4 vs sprint 23</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">9</div>
+        <div class="stat-k">Deploys</div>
+        <div class="stat-d">&plusmn;0</div>
+      </div>
+      <div class="stat flag">
+        <div class="stat-n">1</div>
+        <div class="stat-k">Incidents</div>
+        <div class="stat-d">SEV-3 &middot; 22m</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">96.4%</div>
+        <div class="stat-k">Suite pass rate</div>
+        <div class="stat-d up">+1.8 pts</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Highlights</h2>
+    <hr class="divider">
+    <ul class="points">
+      <li>
+        <strong>Read replicas are serving traffic.</strong> The router now sends analytics queries to the
+        replica pool; primary CPU is down from a 71% to a 44% weekday peak with no change to write latency.
+      </li>
+      <li>
+        <strong>Webhook retries moved to a dead-letter queue.</strong> Failed deliveries stop after five
+        attempts instead of retrying indefinitely, which removed the tail that was keeping the queue depth
+        alarm amber most afternoons.
+      </li>
+      <li>
+        <strong>One SEV-3 on Thursday</strong> &mdash; a schema migration held a lock on
+        <code>events</code> for 22 minutes during business hours. No data loss; the migration policy now
+        requires a lock-timeout.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Shipped</h2>
+    <hr class="divider">
+    <div class="scroll">
+      <table class="ships">
+        <thead>
+          <tr>
+            <th style="width: 84px;">PR</th>
+            <th>Title</th>
+            <th style="width: 132px;">Author</th>
+            <th style="width: 96px;">Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a class="ref" href="#">#2213</a></td>
+            <td>Route analytics reads to the replica pool</td>
+            <td class="who">R. Nakamura</td>
+            <td><span class="risk"><span class="dot high"></span>High</span></td>
+          </tr>
+          <tr>
+            <td><a class="ref" href="#">#2218</a></td>
+            <td>Dead-letter queue for webhook delivery failures</td>
+            <td class="who">A. Osei</td>
+            <td><span class="risk"><span class="dot med"></span>Med</span></td>
+          </tr>
+          <tr>
+            <td><a class="ref" href="#">#2224</a></td>
+            <td>Add <code>lock_timeout</code> to the migration runner</td>
+            <td class="who">L. Fontaine</td>
+            <td><span class="risk"><span class="dot med"></span>Med</span></td>
+          </tr>
+          <tr>
+            <td><a class="ref" href="#">#2229</a></td>
+            <td>Cache warm-up on deploy for the top 200 tenants</td>
+            <td class="who">R. Nakamura</td>
+            <td><span class="risk"><span class="dot low"></span>Low</span></td>
+          </tr>
+          <tr>
+            <td><a class="ref" href="#">#2231</a></td>
+            <td>Drop two unused indexes on <code>audit_log</code></td>
+            <td class="who">T. Brandt</td>
+            <td><span class="risk"><span class="dot low"></span>Low</span></td>
+          </tr>
+          <tr>
+            <td><a class="ref" href="#">#2236</a></td>
+            <td>Stabilise the flaky billing reconciliation test</td>
+            <td class="who">A. Osei</td>
+            <td><span class="risk"><span class="dot low"></span>Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Velocity</h2>
+    <hr class="divider">
+    <div class="chart">
+      <svg viewBox="0 0 640 176" role="img" aria-label="Pull requests merged per day">
+        <line x1="48" y1="20"  x2="620" y2="20"  stroke="#F0EEE6" stroke-width="1"/>
+        <line x1="48" y1="60"  x2="620" y2="60"  stroke="#F0EEE6" stroke-width="1"/>
+        <line x1="48" y1="100" x2="620" y2="100" stroke="#F0EEE6" stroke-width="1"/>
+        <line x1="48" y1="140" x2="620" y2="140" stroke="#D1CFC5" stroke-width="1.5"/>
+
+        <text x="40" y="144" text-anchor="end" font-family="system-ui" font-size="11" fill="#87867F">0</text>
+        <text x="40" y="104" text-anchor="end" font-family="system-ui" font-size="11" fill="#87867F">2</text>
+        <text x="40" y="64"  text-anchor="end" font-family="system-ui" font-size="11" fill="#87867F">4</text>
+        <text x="40" y="24"  text-anchor="end" font-family="system-ui" font-size="11" fill="#87867F">6</text>
+
+        <!-- 3,5,2,6,4,1,2 · 20px per unit, baseline y=140 -->
+        <rect x="64"  y="80"  width="56" height="60"  rx="6" fill="#E3DACC"/>
+        <rect x="144" y="40"  width="56" height="100" rx="6" fill="#E3DACC"/>
+        <rect x="224" y="100" width="56" height="40"  rx="6" fill="#E3DACC"/>
+        <rect x="304" y="20"  width="56" height="120" rx="6" fill="#D97757"/>
+        <rect x="384" y="60"  width="56" height="80"  rx="6" fill="#E3DACC"/>
+        <rect x="464" y="120" width="56" height="20"  rx="6" fill="#E3DACC"/>
+        <rect x="544" y="100" width="56" height="40"  rx="6" fill="#E3DACC"/>
+
+        <text x="92"  y="74"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">3</text>
+        <text x="172" y="34"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">5</text>
+        <text x="252" y="94"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">2</text>
+        <text x="332" y="14"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#3D3D3A" font-weight="600">6</text>
+        <text x="412" y="54"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">4</text>
+        <text x="492" y="114" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">1</text>
+        <text x="572" y="94"  text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">2</text>
+
+        <text x="92"  y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Mon</text>
+        <text x="172" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Tue</text>
+        <text x="252" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Wed</text>
+        <text x="332" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Thu</text>
+        <text x="412" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Fri</text>
+        <text x="492" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Sat</text>
+        <text x="572" y="158" text-anchor="middle" font-family="system-ui" font-size="11" fill="#87867F">Sun</text>
+      </svg>
+      <div class="chart-note">
+        PRs merged per day. Thursday is the replica cutover landing together with its two follow-ups.
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Carryover</h2>
+    <hr class="divider">
+    <div class="carry">
+      <div class="carry-row">
+        <span class="chip">In review</span>
+        <div class="carry-txt">
+          Per-tenant rate limits &mdash; awaiting a decision on whether limits are per key or per workspace.
+          <span class="owner">&middot; T. Brandt</span>
+        </div>
+      </div>
+      <div class="carry-row">
+        <span class="chip">Blocked</span>
+        <div class="carry-txt">
+          Replica failover drill &mdash; blocked on a maintenance window from the infrastructure team.
+          <span class="owner">&middot; R. Nakamura</span>
+        </div>
+      </div>
+      <div class="carry-row">
+        <span class="chip">Slipped</span>
+        <div class="carry-txt">
+          Audit-log retention policy &mdash; deprioritised to make room for the migration follow-up.
+          <span class="owner">&middot; L. Fontaine</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Sources: git log for the sprint window &middot; deploy history &middot; CI dashboard &middot; incident log
+  </footer>
+
+</div>
+</body>
+</html>

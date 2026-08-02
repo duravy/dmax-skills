@@ -1,0 +1,351 @@
+<!-- exemplar · flowchart · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a webhook gets delivered — annotated flowchart</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 96px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  header { margin-bottom: 36px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: 34px; letter-spacing: -0.01em; margin-bottom: 12px; }
+  .lead { font-size: 14.5px; line-height: 1.6; color: var(--gray-700); max-width: 640px; }
+  .lead code { font-family: var(--mono); font-size: 13px; }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 30px; align-items: start; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } .detail { position: static; } }
+
+  .board {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 14px;
+    background: #FFFFFF;
+    padding: 26px;
+    overflow-x: auto;
+  }
+  svg.chart { display: block; width: 100%; height: auto; min-width: 460px; }
+  .chart text { font-family: var(--mono); font-size: 12px; fill: var(--slate); pointer-events: none; }
+  .chart .sub { font-size: 10px; fill: var(--gray-500); }
+  .chart .edge-label { font-size: 10px; fill: var(--gray-500); }
+
+  .box rect      { fill: #FFFFFF; stroke: var(--gray-300); stroke-width: 1.5; rx: 8; }
+  .box.cap rect  { fill: var(--gray-150); rx: 22; }
+  .box.gate path { fill: #FFFFFF; stroke: var(--gray-300); stroke-width: 1.5; }
+  .box.good rect { fill: rgba(120, 140, 93, 0.12); stroke: var(--olive); }
+  .box.bad rect  { fill: rgba(176, 74, 63, 0.10); stroke: var(--rust); }
+  .box { cursor: pointer; transition: transform 120ms ease; }
+  .box:hover { transform: translateY(-1px); }
+  .box.on rect, .box.on path { stroke: var(--clay); stroke-width: 2; }
+
+  .link      { stroke: var(--gray-500); stroke-width: 1.5; fill: none; marker-end: url(#tip); }
+  .link.pass { stroke: var(--olive); marker-end: url(#tip-olive); }
+  .link.fail { stroke: var(--rust); stroke-dasharray: 4 4; marker-end: url(#tip-rust); }
+
+  .detail {
+    position: sticky;
+    top: 24px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 14px;
+    background: #FFFFFF;
+    padding: 20px 20px 22px;
+  }
+  .detail .hint { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; }
+  .detail h2 { font-family: var(--serif); font-weight: 500; font-size: 19px; margin-bottom: 6px; }
+  .detail .meta { font-family: var(--mono); font-size: 11px; color: var(--gray-500); margin-bottom: 14px; }
+  .detail p { font-size: 13.5px; line-height: 1.6; color: var(--gray-700); margin-bottom: 12px; }
+  .detail pre {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    background: var(--gray-150);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    color: var(--slate);
+  }
+
+  .key { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 18px; font-size: 12px; color: var(--gray-700); }
+  .key span { display: inline-flex; align-items: center; gap: 8px; }
+  .swatch { width: 22px; height: 14px; border: 1.5px solid var(--gray-300); border-radius: 4px; background: #FFFFFF; }
+  .swatch.gate { transform: rotate(45deg); width: 12px; height: 12px; border-radius: 2px; }
+  .swatch.good { background: rgba(120, 140, 93, 0.12); border-color: var(--olive); }
+  .swatch.bad  { background: rgba(176, 74, 63, 0.10); border-color: var(--rust); }
+
+  footer {
+    margin-top: 52px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Illustrations &amp; Diagrams · Flowchart</div>
+    <h1>How a webhook gets delivered</h1>
+    <p class="lead">
+      The delivery path for <code>atlas/dispatcher</code>, drawn from the claim loop and the retry policy.
+      Click any step to see what runs, how long it takes, and where a delivery can stop early.
+    </p>
+  </header>
+
+  <div class="split">
+
+    <div>
+      <div class="board">
+        <svg class="chart" viewBox="0 0 620 780">
+          <defs>
+            <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#87867F"/>
+            </marker>
+            <marker id="tip-olive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#788C5D"/>
+            </marker>
+            <marker id="tip-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#B04A3F"/>
+            </marker>
+          </defs>
+
+          <!-- links -->
+          <path class="link" d="M310,56 L310,92"/>
+          <path class="link" d="M310,140 L310,176"/>
+          <path class="link" d="M310,224 L310,262"/>
+
+          <path class="link fail" d="M268,294 L228,294"/>
+          <text class="edge-label" x="248" y="286" text-anchor="middle" fill="#B04A3F">taken</text>
+
+          <path class="link pass" d="M310,326 L310,368"/>
+          <text class="edge-label" x="320" y="352">won</text>
+
+          <path class="link" d="M310,416 L310,454"/>
+
+          <path class="link pass" d="M268,486 C212,486 150,502 150,556"/>
+          <text class="edge-label" x="196" y="516" text-anchor="middle">2xx</text>
+
+          <path class="link fail" d="M310,518 L310,560"/>
+          <text class="edge-label" x="320" y="544" fill="#B04A3F">5xx / timeout</text>
+
+          <path class="link" d="M352,592 L394,592"/>
+          <text class="edge-label" x="373" y="584" text-anchor="middle">&lt; 5</text>
+          <path class="link" d="M490,568 L490,392 L416,392"/>
+
+          <path class="link fail" d="M310,624 L310,676"/>
+          <text class="edge-label" x="320" y="656" fill="#B04A3F">5th failure</text>
+
+          <!-- nodes -->
+          <g class="box cap on" data-k="event">
+            <rect x="230" y="12" width="160" height="44"/>
+            <text x="310" y="38" text-anchor="middle">event emitted</text>
+          </g>
+
+          <g class="box" data-k="enqueue">
+            <rect x="210" y="92" width="200" height="48"/>
+            <text x="310" y="112" text-anchor="middle">Enqueue delivery</text>
+            <text class="sub" x="310" y="128" text-anchor="middle">one row per subscriber</text>
+          </g>
+
+          <g class="box" data-k="claim">
+            <rect x="210" y="176" width="200" height="48"/>
+            <text x="310" y="196" text-anchor="middle">Claim the delivery</text>
+            <text class="sub" x="310" y="212" text-anchor="middle">redis SET NX · 30s TTL</text>
+          </g>
+
+          <g class="box gate" data-k="gate-claim">
+            <path d="M310,262 L352,294 L310,326 L268,294 Z"/>
+            <text x="310" y="298" text-anchor="middle" font-size="11">claimed?</text>
+          </g>
+
+          <g class="box bad" data-k="skip">
+            <rect x="48" y="270" width="180" height="48"/>
+            <text x="138" y="290" text-anchor="middle" font-size="11">Skip — not ours</text>
+            <text class="sub" x="138" y="306" text-anchor="middle">another replica has it</text>
+          </g>
+
+          <g class="box" data-k="post">
+            <rect x="210" y="368" width="200" height="48"/>
+            <text x="310" y="388" text-anchor="middle">POST to subscriber</text>
+            <text class="sub" x="310" y="404" text-anchor="middle">10s timeout · signed</text>
+          </g>
+
+          <g class="box gate" data-k="gate-response">
+            <path d="M310,454 L352,486 L310,518 L268,486 Z"/>
+            <text x="310" y="490" text-anchor="middle" font-size="11">2xx?</text>
+          </g>
+
+          <g class="box good cap" data-k="delivered">
+            <rect x="60" y="556" width="180" height="44"/>
+            <text x="150" y="583" text-anchor="middle" font-size="11">Mark delivered</text>
+          </g>
+
+          <g class="box gate" data-k="gate-attempts">
+            <path d="M310,560 L352,592 L310,624 L268,592 Z"/>
+            <text x="310" y="590" text-anchor="middle" font-size="10">attempts</text>
+            <text x="310" y="602" text-anchor="middle" font-size="10">&lt; 5?</text>
+          </g>
+
+          <g class="box" data-k="backoff">
+            <rect x="400" y="568" width="176" height="48"/>
+            <text x="488" y="588" text-anchor="middle" font-size="11">Backoff + requeue</text>
+            <text class="sub" x="488" y="604" text-anchor="middle">1m · 5m · 25m · 2h</text>
+          </g>
+
+          <g class="box bad cap" data-k="dlq">
+            <rect x="220" y="676" width="180" height="44"/>
+            <text x="310" y="703" text-anchor="middle" font-size="11">Dead-letter queue</text>
+          </g>
+
+          <text class="sub" x="310" y="750" text-anchor="middle">a delivery ends at exactly one of the three capsules</text>
+        </svg>
+      </div>
+
+      <div class="key">
+        <span><i class="swatch"></i> process step</span>
+        <span><i class="swatch gate"></i> decision</span>
+        <span><i class="swatch good"></i> terminal success</span>
+        <span><i class="swatch bad"></i> failure path</span>
+      </div>
+    </div>
+
+    <aside class="detail" id="panel">
+      <div class="hint">Click a step in the chart →</div>
+      <h2 id="d-title">event emitted</h2>
+      <div class="meta" id="d-meta">trigger · 0s</div>
+      <p id="d-body">Any state change that subscribers can listen for. The emitting service writes the event and returns; nothing about delivery happens on its request path.</p>
+      <pre id="d-code">emit("invoice.paid", { id })</pre>
+    </aside>
+
+  </div>
+
+  <footer>
+    Sources: dispatcher/src/claim.ts &middot; dispatcher/src/retry.ts &middot; ops/webhooks.md
+  </footer>
+</div>
+
+<script>
+var DETAIL = {
+  event: {
+    title: "event emitted",
+    meta: "trigger · 0s",
+    body: "Any state change that subscribers can listen for. The emitting service writes the event and returns; nothing about delivery happens on its request path.",
+    code: 'emit("invoice.paid", { id })'
+  },
+  enqueue: {
+    title: "Enqueue delivery",
+    meta: "fan-out · ~3ms",
+    body: "The event is expanded into one delivery row per matching subscription. Fan-out happens once, so adding a subscriber later does not backfill old events.",
+    code: "INSERT INTO deliveries\n  (event_id, subscription_id, attempt)\nSELECT ..."
+  },
+  claim: {
+    title: "Claim the delivery",
+    meta: "redis · SET NX · 30s TTL",
+    body: "Every replica races to claim each row. The winner gets a 30-second lease; if it dies mid-flight the lease expires and another replica retries. This lock must be shared — a per-process lock lets every replica win.",
+    code: 'SET claim:<id> <worker> NX EX 30'
+  },
+  "gate-claim": {
+    title: "Did we win the claim?",
+    meta: "decision",
+    body: "Exactly one replica proceeds. Losing is the normal case on a busy fleet and is not an error — it is how work is divided.",
+    code: "reply === 'OK' ? deliver() : skip()"
+  },
+  skip: {
+    title: "Skip — not ours",
+    meta: "no-op · <1ms",
+    body: "The replica drops the row and moves on. Nothing is logged at info level; losing claims is expected traffic, and logging it would drown the real signal.",
+    code: "return // another replica owns it"
+  },
+  post: {
+    title: "POST to subscriber",
+    meta: "http · 10s timeout",
+    body: "The payload is signed with the subscription secret and sent. Redirects are not followed, and any response body is discarded — only the status code matters.",
+    code: "POST <endpoint>\nX-Atlas-Signature: sha256=..."
+  },
+  "gate-response": {
+    title: "Was it a 2xx?",
+    meta: "decision",
+    body: "Any 2xx is success. Everything else — 4xx, 5xx, timeout, connection refused — is a failure and goes to the retry gate. 4xx is deliberately retried too, because subscribers frequently return 400 while deploying.",
+    code: "status >= 200 && status < 300"
+  },
+  delivered: {
+    title: "Mark delivered",
+    meta: "terminal · success",
+    body: "The row is marked delivered and the claim released. Delivery is at-least-once: a subscriber that returns 2xx after its own timeout may still see a retry, so handlers should be idempotent.",
+    code: "UPDATE deliveries SET state='delivered'"
+  },
+  "gate-attempts": {
+    title: "Attempts under five?",
+    meta: "decision · retry budget",
+    body: "Five attempts total, spread over about two and a half hours. The budget is per delivery row, not per subscriber, so one failing endpoint cannot consume another's retries.",
+    code: "attempt < 5"
+  },
+  backoff: {
+    title: "Backoff + requeue",
+    meta: "1m · 5m · 25m · 2h",
+    body: "The row goes back on the queue with a visibility delay and its attempt counter incremented. Delays are multiplied by a random factor between 0.8 and 1.2 so a mass failure does not produce a synchronised retry spike.",
+    code: "delay = base * 5 ** attempt * jitter()"
+  },
+  dlq: {
+    title: "Dead-letter queue",
+    meta: "terminal · failure",
+    body: "After the fifth failure the delivery is parked and the subscription's failure counter rises. Endpoints failing continuously for 24 hours are auto-disabled and the owner is emailed.",
+    code: "state = 'dead' // replayable for 7 days"
+  }
+};
+
+var boxes = document.querySelectorAll(".box");
+var dTitle = document.getElementById("d-title");
+var dMeta = document.getElementById("d-meta");
+var dBody = document.getElementById("d-body");
+var dCode = document.getElementById("d-code");
+
+boxes.forEach(function (box) {
+  box.addEventListener("click", function () {
+    var info = DETAIL[box.dataset.k];
+    if (!info) return;
+    boxes.forEach(function (b) { b.classList.remove("on"); });
+    box.classList.add("on");
+    dTitle.textContent = info.title;
+    dMeta.textContent = info.meta;
+    dBody.innerHTML = info.body;
+    dCode.textContent = info.code;
+  });
+});
+</script>
+</body>
+</html>

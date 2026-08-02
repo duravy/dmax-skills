@@ -1,0 +1,445 @@
+<!-- exemplar · feature-explainer · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How session capture works in atlas/web</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 196px minmax(0, 1fr);
+    gap: 46px;
+  }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; }
+    .rail { display: none; }
+  }
+
+  /* rail --------------------------------------------------- */
+  .rail { position: sticky; top: 30px; align-self: start; font-size: 13px; }
+  .rail-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 11px;
+  }
+  .rail a {
+    display: block;
+    padding: 5px 0 5px 12px;
+    border-left: 2px solid var(--gray-300);
+    color: var(--gray-700);
+    text-decoration: none;
+  }
+  .rail a:hover { color: var(--slate); border-left-color: var(--slate); }
+  .rail a.sub { padding-left: 24px; font-size: 12.5px; color: var(--gray-500); }
+  .rail-files { margin-top: 26px; border-top: 1px solid var(--gray-300); padding-top: 15px; }
+  .rail-files code {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    padding: 3px 0;
+  }
+
+  /* head --------------------------------------------------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    color: var(--slate);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .tldr {
+    border: 1.5px solid var(--gray-300);
+    border-left: 3px solid var(--clay);
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: 16px 18px;
+  }
+  .tldr b { color: var(--slate); }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 42px 0 12px;
+    scroll-margin-top: 24px;
+  }
+  p { margin-bottom: 12px; max-width: 680px; }
+  code { font-family: var(--mono); font-size: 13px; }
+
+  /* steps -------------------------------------------------- */
+  .step {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 10px;
+    background: #FFFFFF;
+    margin: 13px 0;
+    overflow: hidden;
+  }
+  .step > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--slate);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .step > summary::-webkit-details-marker { display: none; }
+  .step > summary::before {
+    content: "▸";
+    color: var(--clay);
+    font-family: var(--sans);
+    font-size: 12px;
+    transition: transform 120ms ease;
+  }
+  .step[open] > summary::before { transform: rotate(90deg); }
+  .stamp {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .step-body { padding: 0 16px 16px; }
+  .step-body p { font-size: 14px; margin-bottom: 8px; }
+  .step-body p:last-child { margin-bottom: 0; }
+
+  /* snippet tabs ------------------------------------------- */
+  .snippet {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 10px;
+    background: #FFFFFF;
+    margin: 16px 0 8px;
+    overflow: hidden;
+  }
+  .snippet-bar { display: flex; background: var(--gray-150); border-bottom: 1px solid var(--gray-300); }
+  .snippet-bar button {
+    appearance: none;
+    border: none;
+    border-right: 1px solid var(--gray-300);
+    background: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  .snippet-bar button[aria-selected="true"] {
+    background: #FFFFFF;
+    color: var(--slate);
+    border-bottom: 2px solid var(--clay);
+    margin-bottom: -1px;
+  }
+  .snippet pre {
+    margin: 0;
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--slate);
+    overflow-x: auto;
+  }
+  .snippet pre[hidden] { display: none; }
+  .mark { color: var(--clay); }
+  .dim { color: var(--gray-500); }
+
+  /* callout ------------------------------------------------ */
+  .callout {
+    display: flex;
+    gap: 12px;
+    border: 1.5px solid var(--oat);
+    background: rgba(227, 218, 204, 0.35);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 18px 0;
+    font-size: 14px;
+  }
+  .callout-icon { color: var(--clay); font-weight: 600; }
+
+  /* gotchas ------------------------------------------------ */
+  .gotchas { list-style: none; max-width: 680px; }
+  .gotchas li { position: relative; padding-left: 22px; margin-bottom: 10px; }
+  .gotchas li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--clay);
+  }
+  .gotchas b { color: var(--slate); }
+
+  /* faq ---------------------------------------------------- */
+  .faq dt { font-family: var(--serif); font-size: 16px; color: var(--slate); margin-top: 18px; }
+  .faq dd { font-size: 14px; margin-top: 4px; max-width: 640px; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="rail">
+    <div class="rail-label">On this page</div>
+    <a href="#tldr">TL;DR</a>
+    <a href="#path">Capture path</a>
+    <a href="#path" class="sub">1. Observe</a>
+    <a href="#path" class="sub">2. Serialize</a>
+    <a href="#path" class="sub">3. Batch</a>
+    <a href="#path" class="sub">4. Flush</a>
+    <a href="#opting-in">Opting a route in</a>
+    <a href="#gotchas">Gotchas</a>
+    <a href="#faq">FAQ</a>
+    <div class="rail-files">
+      <div class="rail-label">Files read</div>
+      <code>capture/recorder.ts</code>
+      <code>capture/serialize.ts</code>
+      <code>capture/queue.ts</code>
+      <code>config/capture.json</code>
+    </div>
+  </nav>
+
+  <main>
+    <header>
+      <div class="eyebrow">Research &amp; Learning · feature summary</div>
+      <h1>How session capture works in <code>atlas/web</code></h1>
+      <div class="tldr" id="tldr">
+        <b>TL;DR</b> — A <code>MutationObserver</code> records DOM changes into a ring buffer, serializes them
+        to a compact delta format, and flushes batches to <code>/ingest</code> every 5&nbsp;seconds or
+        64&nbsp;KB, whichever comes first. Capture is off by default and enabled per route in
+        <code>config/capture.json</code>. Inputs marked <code>data-private</code> are masked before they ever
+        reach the buffer.
+      </div>
+    </header>
+
+    <h2 id="path">The capture path, step by step</h2>
+    <p>
+      Expand each step to see what runs and where it lives. The full path is about 300 lines and costs
+      roughly 1.2&nbsp;ms per second of active recording on a mid-range laptop.
+    </p>
+
+    <details class="step" open>
+      <summary>1 · Observe the document <span class="stamp">capture/recorder.ts:34</span></summary>
+      <div class="step-body">
+        <p>
+          A single <code>MutationObserver</code> is attached to <code>document.documentElement</code> with
+          <code>subtree</code>, <code>attributes</code> and <code>characterData</code> enabled. One observer
+          for the whole page keeps the callback count flat no matter how many components mount.
+        </p>
+        <p>
+          Masking happens here, not later: any node inside a <code>[data-private]</code> subtree has its text
+          replaced with a run of bullets before the record is created, so unmasked content never enters
+          memory.
+        </p>
+      </div>
+    </details>
+
+    <details class="step">
+      <summary>2 · Serialize to deltas <span class="stamp">capture/serialize.ts:12</span></summary>
+      <div class="step-body">
+        <p>
+          Each node gets a stable integer id on first sight, held in a <code>WeakMap</code>. Subsequent
+          records reference the id rather than re-describing the node, which is what keeps a long session from
+          growing quadratically.
+        </p>
+        <p>
+          The output is a flat array of tuples — <code>[op, id, payload]</code> — chosen over JSON trees
+          because it gzips roughly 4&times; better on repetitive mutation streams.
+        </p>
+      </div>
+    </details>
+
+    <details class="step">
+      <summary>3 · Batch in a ring buffer <span class="stamp">capture/queue.ts:20</span></summary>
+      <div class="step-body">
+        <p>
+          Records land in a fixed 2&nbsp;MB ring buffer. When it wraps, the oldest records are dropped rather
+          than the newest — a truncated beginning is more useful than a truncated end when you're
+          investigating something that just happened.
+        </p>
+      </div>
+    </details>
+
+    <details class="step">
+      <summary>4 · Flush to the collector <span class="stamp">capture/queue.ts:78</span></summary>
+      <div class="step-body">
+        <p>
+          A flush fires on whichever comes first: a 5-second timer, 64&nbsp;KB of pending records, or
+          <code>visibilitychange</code> going hidden. The last case uses <code>sendBeacon</code>, so a closing
+          tab still delivers its tail.
+        </p>
+        <p>
+          Failed flushes retry twice with backoff, then drop. Capture is best-effort by design — it must never
+          be the reason a page stalls.
+        </p>
+      </div>
+    </details>
+
+    <h2 id="opting-in">Opting a route in</h2>
+    <p>
+      You don't touch the recorder. Add the route to <code>config/capture.json</code> and mark any sensitive
+      fields in your template.
+    </p>
+
+    <div class="snippet" data-snippet>
+      <div class="snippet-bar" role="tablist">
+        <button role="tab" aria-selected="true" data-pane="0">capture.json</button>
+        <button role="tab" aria-selected="false" data-pane="1">checkout.tsx</button>
+        <button role="tab" aria-selected="false" data-pane="2">ingest payload</button>
+      </div>
+<pre role="tabpanel"><span class="dim">// config/capture.json</span>
+{
+  "defaultEnabled": false,
+  "routes": {
+    <span class="mark">"/checkout"</span>: { "sampleRate": 0.25 },
+    "/settings/*": { "sampleRate": 1.0 }
+  },
+  "maskSelectors": ["[data-private]", "input[type=password]"]
+}</pre>
+<pre role="tabpanel" hidden><span class="dim">// app/routes/checkout.tsx</span>
+&lt;input
+  name="card"
+  <span class="mark">data-private</span>
+  autoComplete="cc-number"
+/&gt;
+
+<span class="dim">// nothing else to import — the observer is global</span></pre>
+<pre role="tabpanel" hidden>POST /ingest
+Content-Encoding: gzip
+
+{
+  "session": "s_8f21c",
+  "seq": 14,
+  "records": [
+    [<span class="mark">2</span>, 118, { "text": "••••••••" }],
+    [1, 119, { "tag": "div", "parent": 118 }]
+  ]
+}</pre>
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">★</span>
+      <div>
+        Sampling is decided once per session, not per page view. A user sampled into
+        <code>/checkout</code> stays sampled for their whole visit, so you get complete journeys rather than
+        disconnected fragments.
+      </div>
+    </div>
+
+    <h2 id="gotchas">Gotchas worth knowing</h2>
+    <ul class="gotchas">
+      <li>
+        <b>Masking is by subtree, not by field.</b> Marking a wrapper <code>data-private</code> masks
+        everything inside it, including labels and helper text you probably wanted to keep.
+      </li>
+      <li>
+        <b>Canvas and video are never captured.</b> They serialize to a placeholder rectangle. A replay of a
+        chart-heavy page will look emptier than the real thing.
+      </li>
+      <li>
+        <b>The buffer is per tab.</b> Two tabs on the same route produce two independent sessions, and
+        neither knows about the other.
+      </li>
+      <li>
+        <b>Sample rates multiply.</b> A route at <code>0.25</code> inside a project already sampled at
+        <code>0.5</code> captures roughly 12.5% of sessions, which surprises people looking for their own
+        replay.
+      </li>
+    </ul>
+
+    <h2 id="faq">FAQ</h2>
+    <dl class="faq">
+      <dt>How do I capture my own session for debugging?</dt>
+      <dd>Set <code>localStorage.atlasCapture = "force"</code> before loading the page. It overrides the
+        sample rate for that tab only and is ignored in production builds.</dd>
+
+      <dt>Where does the data go?</dt>
+      <dd>The collector writes to object storage with a 30-day lifecycle rule. Nothing is retained past that
+        window, and deletion requests purge by session id.</dd>
+
+      <dt>Does it work with a strict CSP?</dt>
+      <dd>Yes — the recorder ships in the main bundle and opens no workers or blobs. It needs only
+        <code>connect-src</code> for the collector origin.</dd>
+
+      <dt>What's the overhead on a slow device?</dt>
+      <dd>Roughly 4&nbsp;ms per second of recording on a low-end phone. If the main thread is blocked past
+        50&nbsp;ms the observer skips a cycle rather than queueing.</dd>
+    </dl>
+
+    <footer>
+      Sources: capture/recorder.ts &middot; capture/serialize.ts &middot; capture/queue.ts &middot;
+      config/capture.json
+    </footer>
+  </main>
+
+</div>
+
+<script>
+  document.querySelectorAll("[data-snippet]").forEach(function (box) {
+    var tabs = box.querySelectorAll("[role=tab]");
+    var panes = box.querySelectorAll("[role=tabpanel]");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        tabs.forEach(function (t) { t.setAttribute("aria-selected", "false"); });
+        panes.forEach(function (p) { p.hidden = true; });
+        tab.setAttribute("aria-selected", "true");
+        panes[Number(tab.dataset.pane)].hidden = false;
+      });
+    });
+  });
+</script>
+</body>
+</html>

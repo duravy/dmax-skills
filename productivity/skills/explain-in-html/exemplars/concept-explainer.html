@@ -1,0 +1,388 @@
+<!-- exemplar · concept-explainer · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloom filters — an interactive explainer</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 236px;
+    gap: 46px;
+  }
+  @media (max-width: 940px) {
+    .wrap { grid-template-columns: 1fr; }
+    .glossary { position: static; order: 2; }
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 33px;
+    color: var(--slate);
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .lead { max-width: 640px; }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--slate);
+    margin: 40px 0 12px;
+  }
+  p { margin-bottom: 12px; max-width: 680px; }
+  code { font-family: var(--mono); font-size: 13px; }
+  .term { border-bottom: 1.5px dotted var(--clay); cursor: help; color: var(--slate); }
+
+  /* demo ---------------------------------------------------- */
+  .demo {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 14px;
+    background: #FFFFFF;
+    padding: 24px;
+    margin: 14px 0 8px;
+  }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 244px;
+    gap: 26px;
+    align-items: start;
+  }
+  @media (max-width: 740px) { .demo-grid { grid-template-columns: 1fr; } }
+
+  svg.bits { display: block; width: 100%; height: auto; }
+  .bits rect.cell { transition: fill 160ms ease; }
+  .bits text.idx { font-family: var(--mono); font-size: 7px; fill: var(--gray-500); }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  .ctl { font-size: 13px; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .ctl-row label { width: 58px; font-family: var(--mono); font-size: 11px; color: var(--gray-500); }
+  .ctl-row output { width: 30px; font-family: var(--mono); font-size: 12px; color: var(--slate); }
+  .ctl input[type=range] { flex: 1; accent-color: var(--clay); }
+  .ctl button {
+    appearance: none;
+    border: 1.5px solid var(--gray-300);
+    background: var(--gray-150);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-700);
+    padding: 6px 10px;
+    margin: 0 6px 6px 0;
+    cursor: pointer;
+  }
+  .ctl button:hover { background: var(--oat); }
+  .stats {
+    border-top: 1px solid var(--gray-300);
+    margin-top: 12px;
+    padding-top: 12px;
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .stats b { color: var(--slate); }
+  .stats .fp { font-family: var(--mono); color: var(--clay); }
+  .stats .ok { font-family: var(--mono); color: var(--olive); }
+  .caption { font-size: 13px; color: var(--gray-500); max-width: 640px; }
+
+  /* table --------------------------------------------------- */
+  table { border-collapse: collapse; width: 100%; max-width: 640px; font-size: 13.5px; margin: 12px 0; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--gray-300); }
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500);
+    font-weight: 500;
+  }
+  td.win { color: var(--olive); }
+  td.lose { color: var(--rust); }
+
+  /* glossary ------------------------------------------------ */
+  .glossary {
+    position: sticky;
+    top: 30px;
+    align-self: start;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 12px;
+    background: #FFFFFF;
+    padding: 18px 18px 6px;
+  }
+  .glossary dt { font-family: var(--serif); font-size: 15px; color: var(--slate); }
+  .glossary dd { font-size: 12.5px; line-height: 1.5; margin: 2px 0 14px; }
+  .glossary dt.lit, .glossary dt.lit + dd {
+    background: rgba(217, 119, 87, 0.10);
+    margin-left: -8px;
+    margin-right: -8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 4px;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <main>
+    <div class="eyebrow">Research &amp; Learning · concept explainer</div>
+    <h1>Bloom filters, in one bit array</h1>
+    <p class="lead">
+      You want to know whether you've seen a key before, but you have a billion keys and not enough memory to
+      hold them. A Bloom filter answers that question in a few bits per key — at the cost of sometimes saying
+      "yes" when the answer is no. It never says "no" when the answer is yes, and that asymmetry is the whole
+      reason it's useful.
+    </p>
+
+    <h2>The trick: don't store the key, store where it lands</h2>
+    <p>
+      Keep a <span class="term" data-term="bits">bit array</span> of <em>m</em> bits, all zero. To add a key,
+      run it through <em>k</em> <span class="term" data-term="hashes">hash functions</span>, each producing an
+      index, and set those bits to 1. To test a key, hash it the same way and look: if <b>any</b> of its bits
+      is 0 it was definitely never added. If <b>all</b> are 1 it was probably added — or other keys happened
+      to set exactly those bits between them, which is a
+      <span class="term" data-term="fp">false positive</span>.
+    </p>
+
+    <div class="demo">
+      <div class="demo-grid">
+        <div>
+          <div class="panel-label">bit array</div>
+          <svg class="bits" id="bits" viewBox="0 0 272 152" role="img" aria-label="Bloom filter bit array"></svg>
+        </div>
+        <div class="ctl">
+          <div class="panel-label">parameters</div>
+          <div class="ctl-row">
+            <label for="mR">bits m</label>
+            <input id="mR" type="range" min="32" max="128" step="16" value="64">
+            <output id="mO">64</output>
+          </div>
+          <div class="ctl-row">
+            <label for="kR">hashes k</label>
+            <input id="kR" type="range" min="1" max="6" value="3">
+            <output id="kO">3</output>
+          </div>
+          <div>
+            <button id="add1">add a key</button>
+            <button id="add5">add 5</button>
+            <button id="reset">reset</button>
+          </div>
+          <div class="stats" id="stats"></div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">
+      Clay cells are set. Add keys and watch the array saturate — once most bits are 1, "probably yes" stops
+      meaning anything. The measured rate is sampled over 500 keys that were never added.
+    </p>
+
+    <h2>Why it only errs one way</h2>
+    <p>
+      Bits are never cleared. So every key that was added still has all of its bits set, and a lookup for it
+      cannot fail — there are no false negatives, ever. The reverse isn't protected: a key that was never
+      added can find its bits already set by unrelated neighbours. The more keys you add, the more of the
+      array is 1, and the likelier that coincidence becomes.
+    </p>
+    <p>
+      That gives the standard estimate for the false-positive rate after <em>n</em> insertions:
+      <code>(1 − e<sup>−kn/m</sup>)<sup>k</sup></code>. It also explains the shape of the tuning problem —
+      more hashes set more bits per key, so <em>k</em> helps until it starts filling the array on its own.
+    </p>
+
+    <h2>Versus a hash set</h2>
+    <table>
+      <thead><tr><th></th><th>hash set</th><th>bloom filter</th></tr></thead>
+      <tbody>
+        <tr><td>Memory per key</td><td class="lose">the key itself</td><td class="win">~10 bits at 1% error</td></tr>
+        <tr><td>False positives</td><td class="win">never</td><td class="lose">tunable, never zero</td></tr>
+        <tr><td>False negatives</td><td class="win">never</td><td class="win">never</td></tr>
+        <tr><td>Deletion</td><td class="win">supported</td><td class="lose">not without a counting variant</td></tr>
+        <tr><td>Enumerate contents</td><td class="win">yes</td><td class="lose">impossible by construction</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Where you'll meet it</h2>
+    <p>
+      Anywhere a cheap "definitely not" saves an expensive lookup. Storage engines check one before touching
+      an on-disk table; CDNs use one to avoid caching single-hit objects; crawlers use one to skip URLs
+      already visited. The pattern is always the same shape — the filter sits in front of something slow, and
+      its false positives cost you only a wasted check, never a wrong answer.
+    </p>
+
+    <footer>
+      Sources: standard false-positive derivation &middot; parameters measured in the demo above
+    </footer>
+  </main>
+
+  <aside class="glossary">
+    <div class="panel-label">Glossary</div>
+    <dl>
+      <dt data-g="bits">Bit array</dt>
+      <dd>The <em>m</em> bits that are the entire filter. No keys are stored, only the marks they leave.</dd>
+      <dt data-g="hashes">Hash functions</dt>
+      <dd>The <em>k</em> independent functions mapping a key to <em>k</em> positions in the array.</dd>
+      <dt data-g="fp">False positive</dt>
+      <dd>A lookup reporting "probably present" for a key never added, because other keys set its bits.</dd>
+      <dt data-g="sat">Saturation</dt>
+      <dd>The fraction of bits set to 1. As it approaches 1, every lookup returns "probably present".</dd>
+      <dt data-g="union">Union</dt>
+      <dd>Two filters of the same size and hashes OR together into a filter of both their key sets.</dd>
+    </dl>
+  </aside>
+
+</div>
+
+<script>
+/* deterministic 32-bit hash so the demo is reproducible */
+function hash(str, seed) {
+  var h = 0x811c9dc5 ^ seed;
+  for (var i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+var bitsEl = document.getElementById("bits");
+var mR = document.getElementById("mR"), kR = document.getElementById("kR");
+var mO = document.getElementById("mO"), kO = document.getElementById("kO");
+var statsEl = document.getElementById("stats");
+
+var m = 64, k = 3, added = 0, bits = [];
+
+var PER_ROW = 16, CELL = 15, PAD = 2;
+
+function positions(key) {
+  var out = [];
+  for (var i = 0; i < k; i++) out.push(hash(key, i * 0x9e3779b9) % m);
+  return out;
+}
+
+function reset() {
+  m = Number(mR.value);
+  k = Number(kR.value);
+  mO.value = m;
+  kO.value = k;
+  bits = new Array(m).fill(0);
+  added = 0;
+  draw();
+}
+
+function addKeys(count) {
+  for (var i = 0; i < count; i++) {
+    added++;
+    positions("key-" + added).forEach(function (p) { bits[p] = 1; });
+  }
+  draw();
+}
+
+function measureFP() {
+  if (added === 0) return 0;
+  var hits = 0, trials = 500;
+  for (var i = 0; i < trials; i++) {
+    var probe = "absent-" + i;
+    var all = positions(probe).every(function (p) { return bits[p] === 1; });
+    if (all) hits++;
+  }
+  return hits / trials;
+}
+
+function draw() {
+  var rows = Math.ceil(m / PER_ROW);
+  var svg = "";
+  for (var i = 0; i < m; i++) {
+    var r = Math.floor(i / PER_ROW), c = i % PER_ROW;
+    var x = c * (CELL + PAD) + 1, y = r * (CELL + PAD) + 1;
+    svg += '<rect class="cell" x="' + x + '" y="' + y + '" width="' + CELL + '" height="' + CELL +
+           '" rx="3" fill="' + (bits[i] ? "#D97757" : "#F0EEE6") +
+           '" stroke="#D1CFC5" stroke-width="1"/>';
+  }
+  bitsEl.setAttribute("viewBox", "0 0 " + (PER_ROW * (CELL + PAD) + 2) + " " + (rows * (CELL + PAD) + 2));
+  bitsEl.innerHTML = svg;
+
+  var set = bits.reduce(function (a, b) { return a + b; }, 0);
+  var sat = set / m;
+  var theory = added === 0 ? 0 : Math.pow(1 - Math.exp(-k * added / m), k);
+  var measured = measureFP();
+
+  statsEl.innerHTML =
+    "<b>" + added + "</b> keys · <b>" + set + "/" + m + "</b> bits set (" +
+      Math.round(sat * 100) + "% full)<br>" +
+    "predicted FP <span class='" + (theory > 0.1 ? "fp" : "ok") + "'>" +
+      (theory * 100).toFixed(1) + "%</span><br>" +
+    "measured FP <span class='" + (measured > 0.1 ? "fp" : "ok") + "'>" +
+      (measured * 100).toFixed(1) + "%</span>";
+}
+
+mR.oninput = reset;
+kR.oninput = reset;
+document.getElementById("add1").onclick = function () { addKeys(1); };
+document.getElementById("add5").onclick = function () { addKeys(5); };
+document.getElementById("reset").onclick = reset;
+
+document.querySelectorAll(".term").forEach(function (el) {
+  var g = el.dataset.term;
+  var dt = document.querySelector('dt[data-g="' + g + '"]');
+  if (!dt) return;
+  el.addEventListener("mouseenter", function () { dt.classList.add("lit"); });
+  el.addEventListener("mouseleave", function () { dt.classList.remove("lit"); });
+});
+
+reset();
+</script>
+</body>
+</html>

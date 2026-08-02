@@ -1,0 +1,425 @@
+<!-- exemplar · svg-illustrations · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caching — header illustrations</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ivory);
+    color: var(--gray-700);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; }
+
+  header { margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: 34px; color: var(--slate); letter-spacing: -0.01em; margin-bottom: 12px; }
+  .lead { max-width: 640px; margin-bottom: 10px; }
+  .spec { font-family: var(--mono); font-size: 12px; color: var(--gray-500); }
+
+  figure { margin-bottom: 44px; }
+  .frame {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 14px;
+    background: #FFFFFF;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .frame svg { display: block; width: 100%; height: auto; min-width: 520px; }
+
+  figcaption { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-top: 12px; }
+  .cap-title { font-family: var(--serif); font-size: 17px; color: var(--slate); }
+  .cap-use { font-size: 13px; color: var(--gray-500); }
+  button.save {
+    appearance: none;
+    border: 1.5px solid var(--gray-300);
+    background: var(--gray-150);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-700);
+    padding: 7px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  button.save:hover { background: var(--oat); }
+  @media (max-width: 700px) {
+    figcaption { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+
+  .sheet-specs { margin-top: 52px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 22px; color: var(--slate); margin-bottom: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .chip { border: 1.5px solid var(--gray-300); border-radius: 8px; background: #FFFFFF; overflow: hidden; width: 100px; }
+  .chip-fill { height: 32px; }
+  .chip-meta { padding: 7px 9px 9px; }
+  .chip-name { font-size: 12px; color: var(--gray-700); }
+  .chip-hex { font-family: var(--mono); font-size: 10px; color: var(--gray-500); }
+
+  .rules { list-style: none; font-size: 13px; line-height: 1.7; }
+  .rules li { position: relative; padding-left: 18px; margin-bottom: 6px; }
+  .rules li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 8px;
+    height: 1px;
+    background: var(--gray-500);
+  }
+  .rules code { font-family: var(--mono); font-size: 12px; }
+
+  footer {
+    margin-top: 52px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Illustrations &amp; Diagrams · figure set</div>
+    <h1>Caching — header illustrations</h1>
+    <p class="lead">
+      Three 720&times;320 SVGs for the caching section of the <code style="font-family:var(--mono);font-size:13px">atlas</code>
+      handbook. Flat fills, 1.5–2px strokes, palette-locked. Each exports standalone via the button below it.
+    </p>
+    <div class="spec">720 × 320 · inline SVG · no external assets</div>
+  </header>
+
+  <!-- ========================================================
+       A — Cache layers
+       ======================================================== -->
+  <figure>
+    <div class="frame">
+      <svg id="fig-layers" xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+        <defs>
+          <style>
+            .m { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+            .s { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 12px; }
+          </style>
+          <marker id="ar-l" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L0,8 L8,4 z" fill="#87867F"/>
+          </marker>
+          <marker id="ar-hit" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L0,8 L8,4 z" fill="#788C5D"/>
+          </marker>
+        </defs>
+
+        <rect width="720" height="320" fill="#FAF9F5"/>
+
+        <text x="40" y="72" class="s" fill="#87867F">a request walks right until something answers</text>
+
+        <!-- layers -->
+        <rect x="40"  y="120" width="128" height="90" rx="10" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <text x="104" y="160" text-anchor="middle" class="m" fill="#3D3D3A">browser</text>
+        <text x="104" y="176" text-anchor="middle" class="m" fill="#87867F">memory</text>
+
+        <rect x="200" y="120" width="128" height="90" rx="10" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <text x="264" y="160" text-anchor="middle" class="m" fill="#3D3D3A">CDN edge</text>
+        <text x="264" y="176" text-anchor="middle" class="m" fill="#87867F">shared</text>
+
+        <rect x="360" y="120" width="128" height="90" rx="10" fill="#E3DACC" stroke="#3D3D3A" stroke-width="1.5"/>
+        <text x="424" y="160" text-anchor="middle" class="m" fill="#3D3D3A">app cache</text>
+        <text x="424" y="176" text-anchor="middle" class="m" fill="#87867F">redis</text>
+
+        <rect x="520" y="120" width="160" height="90" rx="10" fill="#D97757" stroke="#141413" stroke-width="2"/>
+        <text x="600" y="160" text-anchor="middle" class="m" fill="#FAF9F5">origin</text>
+        <text x="600" y="176" text-anchor="middle" class="m" fill="#FAF9F5">postgres</text>
+
+        <!-- miss arrows -->
+        <line x1="172" y1="165" x2="194" y2="165" stroke="#87867F" stroke-width="1.5" marker-end="url(#ar-l)"/>
+        <line x1="332" y1="165" x2="354" y2="165" stroke="#87867F" stroke-width="1.5" marker-end="url(#ar-l)"/>
+        <line x1="492" y1="165" x2="514" y2="165" stroke="#87867F" stroke-width="1.5" marker-end="url(#ar-l)"/>
+
+        <text x="183" y="156" text-anchor="middle" class="m" fill="#87867F">miss</text>
+        <text x="343" y="156" text-anchor="middle" class="m" fill="#87867F">miss</text>
+        <text x="503" y="156" text-anchor="middle" class="m" fill="#87867F">miss</text>
+
+        <!-- hit rates above -->
+        <text x="104" y="108" text-anchor="middle" class="m" fill="#788C5D">42% hit</text>
+        <text x="264" y="108" text-anchor="middle" class="m" fill="#788C5D">31% hit</text>
+        <text x="424" y="108" text-anchor="middle" class="m" fill="#788C5D">21% hit</text>
+        <text x="600" y="108" text-anchor="middle" class="m" fill="#B04A3F">6% reach here</text>
+
+        <!-- latency scale -->
+        <line x1="40" y1="240" x2="680" y2="240" stroke="#D1CFC5" stroke-width="1.5"/>
+        <text x="104" y="260" text-anchor="middle" class="m" fill="#3D3D3A">0 ms</text>
+        <text x="264" y="260" text-anchor="middle" class="m" fill="#3D3D3A">12 ms</text>
+        <text x="424" y="260" text-anchor="middle" class="m" fill="#3D3D3A">40 ms</text>
+        <text x="600" y="260" text-anchor="middle" class="m" fill="#3D3D3A">180 ms</text>
+        <text x="40" y="284" class="s" fill="#87867F">p50 time to first byte at each layer</text>
+
+        <!-- hit return -->
+        <path d="M 264 120 Q 184 62 104 96" fill="none" stroke="#788C5D" stroke-width="1.5" marker-end="url(#ar-hit)"/>
+      </svg>
+    </div>
+    <figcaption>
+      <div>
+        <div class="cap-title">Cache layers</div>
+        <div class="cap-use">For "Where things get cached" — section header.</div>
+      </div>
+      <button class="save" data-fig="fig-layers" data-name="atlas-cache-layers.svg">Download SVG</button>
+    </figcaption>
+  </figure>
+
+  <!-- ========================================================
+       B — Stampede vs single-flight
+       ======================================================== -->
+  <figure>
+    <div class="frame">
+      <svg id="fig-stampede" xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+        <defs>
+          <style>
+            .m { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+            .s { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 12px; }
+          </style>
+          <marker id="ar-bad" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L0,7 L7,3.5 z" fill="#B04A3F"/>
+          </marker>
+          <marker id="ar-good" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L0,7 L7,3.5 z" fill="#788C5D"/>
+          </marker>
+        </defs>
+
+        <rect width="720" height="320" fill="#FAF9F5"/>
+
+        <text x="40"  y="48" class="s" fill="#B04A3F">without single-flight</text>
+        <text x="400" y="48" class="s" fill="#788C5D">with single-flight</text>
+
+        <!-- divider -->
+        <line x1="360" y1="30" x2="360" y2="290" stroke="#D1CFC5" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- LEFT: five requests, five origin calls -->
+        <circle cx="60" cy="90"  r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="60" cy="130" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="60" cy="170" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="60" cy="210" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="60" cy="250" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+
+        <line x1="72" y1="90"  x2="212" y2="152" stroke="#B04A3F" stroke-width="1.5" marker-end="url(#ar-bad)"/>
+        <line x1="72" y1="130" x2="212" y2="162" stroke="#B04A3F" stroke-width="1.5" marker-end="url(#ar-bad)"/>
+        <line x1="72" y1="170" x2="212" y2="170" stroke="#B04A3F" stroke-width="1.5" marker-end="url(#ar-bad)"/>
+        <line x1="72" y1="210" x2="212" y2="178" stroke="#B04A3F" stroke-width="1.5" marker-end="url(#ar-bad)"/>
+        <line x1="72" y1="250" x2="212" y2="188" stroke="#B04A3F" stroke-width="1.5" marker-end="url(#ar-bad)"/>
+
+        <rect x="220" y="130" width="110" height="80" rx="10" fill="#D97757" stroke="#141413" stroke-width="2"/>
+        <text x="275" y="166" text-anchor="middle" class="m" fill="#FAF9F5">origin</text>
+        <text x="275" y="182" text-anchor="middle" class="m" fill="#FAF9F5">5 queries</text>
+
+        <text x="40" y="288" class="s" fill="#87867F">every waiting request re-computes the same value</text>
+
+        <!-- RIGHT: five requests collapse onto one -->
+        <circle cx="410" cy="90"  r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="410" cy="130" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="410" cy="170" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="410" cy="210" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <circle cx="410" cy="250" r="7" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+
+        <!-- join bus -->
+        <line x1="422" y1="90"  x2="470" y2="90"  stroke="#87867F" stroke-width="1.5"/>
+        <line x1="422" y1="130" x2="470" y2="130" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="422" y1="170" x2="470" y2="170" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="422" y1="210" x2="470" y2="210" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="422" y1="250" x2="470" y2="250" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="470" y1="90"  x2="470" y2="250" stroke="#87867F" stroke-width="1.5"/>
+
+        <text x="486" y="146" class="m" fill="#87867F">one leader,</text>
+        <text x="486" y="160" class="m" fill="#87867F">four waiters</text>
+
+        <line x1="470" y1="170" x2="562" y2="170" stroke="#788C5D" stroke-width="2" marker-end="url(#ar-good)"/>
+
+        <rect x="570" y="130" width="110" height="80" rx="10" fill="#788C5D" stroke="#141413" stroke-width="2"/>
+        <text x="625" y="166" text-anchor="middle" class="m" fill="#FAF9F5">origin</text>
+        <text x="625" y="182" text-anchor="middle" class="m" fill="#FAF9F5">1 query</text>
+
+        <text x="400" y="288" class="s" fill="#87867F">the first request fetches; the rest await its result</text>
+      </svg>
+    </div>
+    <figcaption>
+      <div>
+        <div class="cap-title">Stampede vs single-flight</div>
+        <div class="cap-use">For "What happens at expiry" — the stampede problem.</div>
+      </div>
+      <button class="save" data-fig="fig-stampede" data-name="atlas-cache-stampede.svg">Download SVG</button>
+    </figcaption>
+  </figure>
+
+  <!-- ========================================================
+       C — Freshness timeline
+       ======================================================== -->
+  <figure>
+    <div class="frame">
+      <svg id="fig-freshness" xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320">
+        <defs>
+          <style>
+            .m { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+            .s { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 12px; }
+          </style>
+          <marker id="ar-up" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+            <path d="M0,0 L0,7 L7,3.5 z" fill="#87867F"/>
+          </marker>
+        </defs>
+
+        <rect width="720" height="320" fill="#FAF9F5"/>
+
+        <text x="60" y="66" class="s" fill="#87867F">one cache entry, from write to hard expiry</text>
+
+        <!-- bands -->
+        <rect x="60"  y="140" width="260" height="44" rx="8" fill="#E3DACC" stroke="#3D3D3A" stroke-width="1.5"/>
+        <text x="190" y="167" text-anchor="middle" class="m" fill="#141413">fresh — served directly</text>
+
+        <rect x="320" y="140" width="200" height="44" rx="8" fill="#F0EEE6" stroke="#3D3D3A" stroke-width="1.5"/>
+        <text x="420" y="167" text-anchor="middle" class="m" fill="#3D3D3A">stale, revalidating</text>
+
+        <rect x="520" y="140" width="140" height="44" rx="8" fill="#FFFFFF" stroke="#B04A3F" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="590" y="167" text-anchor="middle" class="m" fill="#B04A3F">expired — blocks</text>
+
+        <!-- axis -->
+        <line x1="60" y1="212" x2="660" y2="212" stroke="#D1CFC5" stroke-width="1.5"/>
+
+        <!-- ticks -->
+        <line x1="60"  y1="206" x2="60"  y2="218" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="320" y1="206" x2="320" y2="218" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="520" y1="206" x2="520" y2="218" stroke="#87867F" stroke-width="1.5"/>
+        <line x1="660" y1="206" x2="660" y2="218" stroke="#87867F" stroke-width="1.5"/>
+
+        <text x="60"  y="236" text-anchor="middle" class="m" fill="#3D3D3A">t=0</text>
+        <text x="320" y="236" text-anchor="middle" class="m" fill="#3D3D3A">60s</text>
+        <text x="520" y="236" text-anchor="middle" class="m" fill="#3D3D3A">180s</text>
+        <text x="660" y="236" text-anchor="middle" class="m" fill="#3D3D3A">∞</text>
+
+        <text x="60"  y="256" text-anchor="middle" class="s" fill="#87867F">written</text>
+        <text x="320" y="256" text-anchor="middle" class="s" fill="#87867F">max-age</text>
+        <text x="520" y="256" text-anchor="middle" class="s" fill="#87867F">swr limit</text>
+
+        <!-- revalidation callout -->
+        <line x1="420" y1="130" x2="420" y2="100" stroke="#87867F" stroke-width="1.5" marker-end="url(#ar-up)"/>
+        <circle cx="420" cy="94" r="5" fill="#D97757"/>
+        <text x="434" y="98" class="s" fill="#3D3D3A">a hit here serves the old value and refreshes in the background</text>
+
+        <text x="60" y="290" class="s" fill="#87867F">Cache-Control: max-age=60, stale-while-revalidate=120</text>
+      </svg>
+    </div>
+    <figcaption>
+      <div>
+        <div class="cap-title">Freshness timeline</div>
+        <div class="cap-use">For "TTL and revalidation" — header for the policy page.</div>
+      </div>
+      <button class="save" data-fig="fig-freshness" data-name="atlas-cache-freshness.svg">Download SVG</button>
+    </figcaption>
+  </figure>
+
+  <section class="sheet-specs">
+    <h2>Palette &amp; conventions</h2>
+    <div class="chips">
+      <div class="chip">
+        <div class="chip-fill" style="background:#FAF9F5; border-bottom:1px solid #D1CFC5"></div>
+        <div class="chip-meta"><div class="chip-name">ivory</div><div class="chip-hex">#FAF9F5</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#141413"></div>
+        <div class="chip-meta"><div class="chip-name">slate</div><div class="chip-hex">#141413</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#D97757"></div>
+        <div class="chip-meta"><div class="chip-name">clay</div><div class="chip-hex">#D97757</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#E3DACC"></div>
+        <div class="chip-meta"><div class="chip-name">oat</div><div class="chip-hex">#E3DACC</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#788C5D"></div>
+        <div class="chip-meta"><div class="chip-name">olive</div><div class="chip-hex">#788C5D</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#B04A3F"></div>
+        <div class="chip-meta"><div class="chip-name">rust</div><div class="chip-hex">#B04A3F</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#F0EEE6"></div>
+        <div class="chip-meta"><div class="chip-name">gray-150</div><div class="chip-hex">#F0EEE6</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#D1CFC5"></div>
+        <div class="chip-meta"><div class="chip-name">gray-300</div><div class="chip-hex">#D1CFC5</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#87867F"></div>
+        <div class="chip-meta"><div class="chip-name">gray-500</div><div class="chip-hex">#87867F</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-fill" style="background:#3D3D3A"></div>
+        <div class="chip-meta"><div class="chip-name">gray-700</div><div class="chip-hex">#3D3D3A</div></div>
+      </div>
+    </div>
+
+    <ul class="rules">
+      <li>Strokes are 1.5px for neutral shapes, 2px for the one element in focus.</li>
+      <li>Rounded rectangles use <code>rx="10"</code>; bands and chips use <code>rx="8"</code>. No shadows, no gradients.</li>
+      <li>Labels inside shapes are 11px mono; annotations outside are 12px sans in gray-500.</li>
+      <li>Clay marks the element in focus, olive the good path, rust the failing one.</li>
+      <li>Each figure repeats the <code>&lt;style&gt;</code> block it needs so the downloaded file stands alone.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Sources: ops/caching.md &middot; edge configuration &middot; cache hit metrics for the trailing 30 days
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll("button.save").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var svg = document.getElementById(btn.dataset.fig);
+      var text = new XMLSerializer().serializeToString(svg);
+      var blob = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.href = url;
+      link.download = btn.dataset.name || "figure.svg";
+      link.click();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!-- exemplar · incident-report · original template for the explain-in-html skill -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INC-2026-0139 — duplicate webhook deliveries</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --panel: 12px;
+    --edge: 1.5px solid var(--gray-300);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 24px 120px;
+  }
+  .wrap { max-width: 800px; margin: 0 auto; }
+
+  /* header -------------------------------------------------- */
+  .ref-id { font-family: var(--mono); font-size: 13px; color: var(--gray-500); margin-bottom: 8px; }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 36px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
+  .pills { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 44px; }
+  .pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 5px 12px;
+    line-height: 1;
+  }
+  .pill .k { font-weight: 400; opacity: 0.75; }
+  .pill .v { font-family: var(--mono); }
+  .pill.sev { background: var(--clay); color: #FFFFFF; letter-spacing: 0.03em; }
+  .pill.state { background: var(--olive); color: #FFFFFF; }
+  .pill.fact { background: var(--gray-150); color: var(--gray-700); border: var(--edge); }
+
+  /* summary ------------------------------------------------- */
+  .summary { background: var(--slate); color: var(--ivory); border-radius: var(--panel); padding: 22px 26px; margin-bottom: 48px; }
+  .summary-k {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--oat);
+    margin-bottom: 10px;
+  }
+  .summary p { font-size: 15.5px; line-height: 1.65; }
+  .summary code {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    background: rgba(250, 249, 245, 0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  section { margin-bottom: 50px; scroll-margin-top: 24px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 24px; letter-spacing: -0.01em; }
+  .divider { border: none; border-top: 1px solid var(--gray-300); margin: 6px 0 22px; }
+  p { margin-bottom: 14px; }
+  code.k { font-family: var(--mono); font-size: 13px; background: var(--gray-150); padding: 1.5px 5px; border-radius: 4px; }
+
+  /* timeline ------------------------------------------------ */
+  .track { position: relative; padding: 4px 0 4px 16px; }
+  .track::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--gray-300);
+  }
+  .beat { position: relative; padding: 0 0 22px 28px; }
+  .beat:last-child { padding-bottom: 0; }
+  .pip {
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gray-500);
+    border: 2px solid var(--ivory);
+    box-sizing: content-box;
+  }
+  .pip.hit { background: var(--clay); }
+  .pip.fixed { background: var(--olive); }
+  .at {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-700);
+    background: var(--gray-150);
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+  }
+  .beat-body { font-size: 14px; color: var(--gray-700); }
+  .beat-body strong { color: var(--slate); font-weight: 600; }
+
+  /* code ---------------------------------------------------- */
+  .code {
+    background: var(--slate);
+    color: var(--gray-150);
+    border-radius: var(--panel);
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 8px 0 4px;
+  }
+  .code .where { color: var(--gray-500); font-size: 12px; margin-bottom: 10px; display: block; }
+  .ln { white-space: pre; }
+  .ln.same { color: var(--gray-300); }
+  .ln.minus { color: #E0897A; }
+  .ln.plus { color: #A3B88A; }
+
+  /* impact -------------------------------------------------- */
+  .scroll { overflow-x: auto; }
+  table.impact {
+    width: 100%;
+    max-width: 460px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #FFFFFF;
+    border: var(--edge);
+    border-radius: var(--panel);
+    overflow: hidden;
+  }
+  table.impact th, table.impact td {
+    text-align: left;
+    padding: 12px 18px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--gray-150);
+  }
+  table.impact tr:last-child th, table.impact tr:last-child td { border-bottom: none; }
+  table.impact th { font-weight: 400; color: var(--gray-500); width: 56%; }
+  table.impact td { font-family: var(--mono); color: var(--slate); }
+
+  /* actions ------------------------------------------------- */
+  .actions { background: #FFFFFF; border: var(--edge); border-radius: var(--panel); overflow: hidden; }
+  .task {
+    display: grid;
+    grid-template-columns: 30px 32px 1fr 92px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-150);
+  }
+  .task:last-child { border-bottom: none; }
+  .box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 5px;
+    background: #FFFFFF;
+    position: relative;
+  }
+  .task.done .box { background: var(--olive); border-color: var(--olive); }
+  .task.done .box::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid #FFFFFF;
+    border-width: 0 2px 2px 0;
+    transform: rotate(40deg);
+  }
+  .task.done .what { color: var(--gray-500); text-decoration: line-through; text-decoration-color: var(--gray-300); }
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--oat);
+    color: var(--gray-700);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .what { font-size: 14px; }
+  .due { font-family: var(--mono); font-size: 12px; color: var(--gray-500); text-align: right; }
+
+  /* toc ----------------------------------------------------- */
+  .toc { display: none; }
+  @media (min-width: 1120px) {
+    .toc {
+      display: block;
+      position: fixed;
+      top: 72px;
+      right: max(24px, calc(50vw - 400px - 200px));
+      width: 168px;
+      font-size: 13px;
+    }
+    .toc-k {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+    .toc a {
+      display: block;
+      color: var(--gray-500);
+      text-decoration: none;
+      padding: 5px 0 5px 12px;
+      border-left: 1.5px solid var(--gray-300);
+      line-height: 1.3;
+    }
+    .toc a:hover { color: var(--slate); border-left-color: var(--clay); }
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-300);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+</style>
+</head>
+<body>
+
+  <nav class="toc">
+    <div class="toc-k">On this page</div>
+    <a href="#summary">Summary</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#cause">Root cause</a>
+    <a href="#impact">Impact</a>
+    <a href="#actions">Action items</a>
+  </nav>
+
+  <div class="wrap">
+
+    <header>
+      <div class="ref-id">INC-2026-0139</div>
+      <h1>Duplicate webhook deliveries to all subscribers</h1>
+      <div class="pills">
+        <span class="pill sev">SEV-2</span>
+        <span class="pill state">Resolved</span>
+        <span class="pill fact"><span class="k">Duration</span> <span class="v">1h 08m</span></span>
+        <span class="pill fact"><span class="k">Detected</span> <span class="v">Feb 19 · 09:41</span></span>
+        <span class="pill fact"><span class="k">Owner</span> <span class="v">A. Osei</span></span>
+      </div>
+    </header>
+
+    <div class="summary" id="summary">
+      <div class="summary-k">TL;DR</div>
+      <p>
+        A deploy replaced the webhook dispatcher's Redis-backed delivery lock with a per-process in-memory
+        lock. With six dispatcher replicas running, each event was claimed six times, so every subscriber
+        received up to six copies of every webhook for 68 minutes. We mitigated by scaling the dispatcher to a
+        single replica, then rolled back. Roughly <code>214,000</code> duplicate deliveries went out; no
+        events were lost.
+      </p>
+    </div>
+
+    <section id="timeline">
+      <h2>Timeline</h2>
+      <hr class="divider">
+      <div class="track">
+
+        <div class="beat">
+          <span class="pip"></span>
+          <span class="at">09:32</span>
+          <div class="beat-body">
+            <code class="k">dispatcher@4.9.0</code> reaches 100% of the fleet. The release is routine and
+            passes all canary checks &mdash; duplicate delivery is not something the canary measures.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip hit"></span>
+          <span class="at">09:34</span>
+          <div class="beat-body">
+            <strong>Impact starts.</strong> Every dispatcher replica begins claiming the same events.
+            Outbound delivery volume rises roughly 6&times; while the event rate stays flat.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip"></span>
+          <span class="at">09:41</span>
+          <div class="beat-body">
+            First customer report arrives in support: an integration created six identical records. The
+            delivery-volume alert has not fired &mdash; its threshold is absolute, and 6&times; of a quiet
+            Monday morning is still under it.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip"></span>
+          <span class="at">09:58</span>
+          <div class="beat-body">
+            On-call correlates the report with the 09:32 deploy. Initial hypothesis is a retry-loop
+            regression, so the retry configuration is inspected first &mdash; it is unchanged.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip"></span>
+          <span class="at">10:21</span>
+          <div class="beat-body">
+            Reading the diff rather than the config surfaces the lock change. The replica count explains the
+            multiplier exactly: six replicas, six copies.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip fixed"></span>
+          <span class="at">10:42</span>
+          <div class="beat-body">
+            <strong>Mitigated.</strong> Dispatcher scaled to one replica, which makes the in-memory lock
+            correct by accident. Duplicates stop immediately.
+          </div>
+        </div>
+
+        <div class="beat">
+          <span class="pip"></span>
+          <span class="at">11:05</span>
+          <div class="beat-body">
+            Rollback to <code class="k">4.8.3</code> completes and the fleet is scaled back to six. Delivery
+            volume returns to baseline; incident resolved.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="cause">
+      <h2>Root cause</h2>
+      <hr class="divider">
+      <p>
+        PR <code class="k">#2247</code> set out to remove a Redis dependency from the dispatcher's hot path.
+        The delivery lock was rewritten to use a local <code class="k">Set</code>, which is correct for a
+        single process and silently wrong for a fleet. Every replica held its own idea of which events were
+        claimed, so all six claimed all of them.
+      </p>
+      <p>
+        The test suite did not catch it because the dispatcher's tests run one instance. Nothing in the suite
+        exercises two dispatchers against one event stream, so a class of bug that only appears with
+        concurrency has no test that could fail.
+      </p>
+      <p>
+        Detection was slow for a separate reason: the delivery-volume alert uses an absolute threshold rather
+        than a ratio against event volume. A 6&times; multiplier on light traffic stayed below it, so the
+        first signal was a customer rather than a monitor.
+      </p>
+
+      <div class="code">
+        <span class="where">dispatcher/src/claim.ts</span>
+<div class="ln same">   async function claim(eventId: string) {</div>
+<div class="ln minus">-    const held = await redis.set(`claim:${eventId}`, id, "NX", "EX", 30);</div>
+<div class="ln minus">-    return held === "OK";</div>
+<div class="ln plus">+    if (claimed.has(eventId)) return false;   // local Set</div>
+<div class="ln plus">+    claimed.add(eventId);</div>
+<div class="ln plus">+    return true;</div>
+<div class="ln same">   }</div>
+      </div>
+    </section>
+
+    <section id="impact">
+      <h2>Impact</h2>
+      <hr class="divider">
+      <div class="scroll">
+        <table class="impact">
+          <tr><th>Duplicate deliveries</th><td>~214,000</td></tr>
+          <tr><th>Subscribers affected</th><td>1,840 endpoints</td></tr>
+          <tr><th>Peak duplication factor</th><td>6&times;</td></tr>
+          <tr><th>Events lost</th><td>None</td></tr>
+          <tr><th>Time to detect</th><td>7 min (customer)</td></tr>
+          <tr><th>Time to mitigate</th><td>68 min</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="actions">
+      <h2>Action items</h2>
+      <hr class="divider">
+      <div class="actions">
+
+        <div class="task done">
+          <span class="box"></span>
+          <span class="avatar" title="A. Osei">AO</span>
+          <span class="what">Roll back to 4.8.3 and restore the Redis-backed claim lock</span>
+          <span class="due">Feb 19</span>
+        </div>
+
+        <div class="task">
+          <span class="box"></span>
+          <span class="avatar" title="R. Nakamura">RN</span>
+          <span class="what">Add a two-replica integration test asserting exactly-once claim</span>
+          <span class="due">Feb 26</span>
+        </div>
+
+        <div class="task">
+          <span class="box"></span>
+          <span class="avatar" title="L. Fontaine">LF</span>
+          <span class="what">Change the delivery alert to a ratio of deliveries to events</span>
+          <span class="due">Feb 28</span>
+        </div>
+
+        <div class="task">
+          <span class="box"></span>
+          <span class="avatar" title="T. Brandt">TB</span>
+          <span class="what">Require an explicit note on any PR touching shared-state primitives</span>
+          <span class="due">Mar 06</span>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      Authored from on-call notes, alert history and the 4.9.0 diff &middot; reviewed by A. Osei, R. Nakamura
+    </footer>
+
+  </div>
+</body>
+</html>
